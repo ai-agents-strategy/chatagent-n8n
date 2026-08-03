@@ -2,3 +2,5 @@ dist
 node_modules
 .claude
 .mcp.json
+graphify-out
+lat.md/.cache
