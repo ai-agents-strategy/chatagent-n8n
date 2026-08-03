@@ -4,3 +4,4 @@ node_modules
 .mcp.json
 graphify-out
 lat.md/.cache
+.env
