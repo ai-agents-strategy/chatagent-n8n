@@ -24,6 +24,12 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
 
+      - name: Pin npm
+        # Newer npm (11.6.2+) has a lockfile-convergence bug (npm/cli#8726) that
+        # spuriously fails `npm ci` on optional platform deps like fsevents,
+        # even when the lockfile is otherwise correct. Pin to a known-good version.
+        run: npm install -g npm@11.6.0
+
       - name: Install dependencies
         run: npm ci
 
