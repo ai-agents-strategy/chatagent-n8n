@@ -3,7 +3,7 @@
 	"version": "0.1.2",
 	"description": "n8n community nodes for ChatAgent.so",
 	"license": "MIT",
-	"homepage": "",
+	"homepage": "https://www.chatagent.so",
 	"keywords": [
 		"n8n-community-node-package"
 	],
@@ -22,6 +22,8 @@
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"release": "n8n-node release",
 		"prepublishOnly": "n8n-node prerelease"
 	},
@@ -35,21 +37,19 @@
 		"n8nNodesApiVersion": 1,
 		"strict": true,
 		"credentials": [
-			"dist/credentials/GithubIssuesApi.credentials.js",
-			"dist/credentials/GithubIssuesOAuth2Api.credentials.js",
 			"dist/credentials/ChatAgentApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/GithubIssues/GithubIssues.node.js",
 			"dist/nodes/ChatAgent/ChatAgent.node.js"
 		]
 	},
 	"devDependencies": {
-		"@n8n/node-cli": "*",
+		"@n8n/node-cli": "^0.43.3",
 		"eslint": "9.29.0",
 		"prettier": "3.8.3",
 		"release-it": "20.2.0",
-		"typescript": "5.9.3"
+		"typescript": "5.9.3",
+		"vitest": "^4.1.10"
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"

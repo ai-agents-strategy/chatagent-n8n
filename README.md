@@ -11,6 +11,8 @@ ChatAgent.so is a CRM + AI inbox platform (contacts, companies, deals/pipelines,
 [Credentials](#credentials)
 [Compatibility](#compatibility)
 [Usage](#usage)
+[Examples](#examples)
+[Error Handling](#error-handling)
 [Resources](#resources)
 
 ## Installation
@@ -43,6 +45,31 @@ Tested against n8n's `n8n-workflow` API version 1. Built with `@n8n/node-cli`.
 ## Usage
 
 Every operation exposes an `action` and `description` used by n8n's AI Agent to pick the right tool — the whole node can be used as a tool without extra configuration.
+
+## Examples
+
+**Sync new contacts to a Google Sheet**
+`Manual Trigger` → `ChatAgent: Contact / Get Many` (with a Filters → Search value) → `Google Sheets: Append`
+
+**Move a deal to the next pipeline stage from an external event**
+`Webhook` → `ChatAgent: Pipeline / Get Stages` (look up the target `stageId`) → `ChatAgent: Deal / Move`
+
+**Reply to a conversation from an AI Agent**
+`Chat Trigger` → `AI Agent` (with the ChatAgent node added as a tool, `usableAsTool: true`) → the agent calls `Conversation / Send Message` directly to reply, no separate HTTP node needed.
+
+## Error Handling
+
+Errors surface as standard n8n HTTP errors (status code + response body); the most common ones:
+
+| Status | Cause | Fix |
+| --- | --- | --- |
+| 401 | Access Token expired or missing | Tokens are short-lived Better Auth JWTs — re-generate and update the credential. |
+| 403 on Company operations | Org's plan doesn't include the `company_management` feature | Upgrade the ChatAgent plan, or avoid the Company resource. |
+| 404 | Wrong ID (`contactId`, `pipelineId`, `dealId`, `conversationId`, …) or wrong Base URL for a self-hosted instance | Verify the ID and the credential's Base URL. |
+| 429 | Rate limited | The node has no built-in retry/backoff — add an n8n `Wait` node + retry, or lower request concurrency in the workflow. |
+| Timeout | Slow response from chatagent-api | Requests time out after 30s by default (`requestDefaults.timeout`); check chatagent-api status if this recurs. |
+
+Use each node's **Continue On Fail** setting to keep a workflow running past a single failed item instead of aborting the whole execution.
 
 ## Resources
 

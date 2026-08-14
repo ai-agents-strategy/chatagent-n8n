@@ -32,6 +32,7 @@ export class ChatAgent implements INodeType {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
 			},
+			timeout: 30000,
 		},
 		properties: [
 			{

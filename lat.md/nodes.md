@@ -10,7 +10,7 @@ See chatagent-api's own `lat.md/api` docs for the full HTTP surface this node dr
 
 The node sets `usableAsTool: true`, so the whole node (every resource/operation) is directly pickable as a tool by n8n's AI Agent node — no separate tool-node wrapper needed. Each operation's `action` + `description` (set per-option in every resource's `index.ts`, e.g. Conversation's Send Message: "Send a text or internal-note message on a conversation") is what the LLM sees when choosing which operation to call, so keep those strings accurate and specific when adding new operations.
 
-Auth is [[credentials/ChatAgentApi.credentials.ts#ChatAgentApi]] — a bearer-token credential with a configurable Base URL (defaults to `https://api.chatagent.so`), since the token is a short-lived Better Auth JWT scoped to one organization, not a long-lived API key. The node's `requestDefaults.baseURL` reads from `{{$credentials.baseUrl}}` so self-hosted or staging deployments can override it.
+Auth is [[credentials/ChatAgentApi.credentials.ts#ChatAgentApi]] — a bearer-token credential with a configurable Base URL (defaults to `https://api.chatagent.so`), since the token is a short-lived Better Auth JWT scoped to one organization, not a long-lived API key. The node's `requestDefaults.baseURL` reads from `{{$credentials.baseUrl}}` so self-hosted or staging deployments can override it. `requestDefaults.timeout` is a fixed 30s — there's no per-operation override or automatic retry/backoff on 429, so a workflow hitting chatagent-api rate limits needs its own `Wait` + retry (see README's Error Handling section).
 
 All chatagent-api responses share the envelope `{ message, data }`; every operation's routing sets `output.postReceive` with a `rootProperty` extractor (`data` for single-entity operations, `data.items` for list operations) to unwrap it before n8n sees the result.
 
@@ -56,6 +56,8 @@ Not covered: media messages/upload-url flow, message retry, message/global searc
 
 Other chatagent-api domains (knowledge base, agents) are not yet covered — add a sibling `resources/<name>/` directory following the same index.ts + operation-file pattern when needed.
 
-## GitHub Issues node
+## Testing
 
-[[nodes/GithubIssues/GithubIssues.node.ts#GithubIssues]] is the pre-existing reference implementation this package's structure is modeled on — same resource/operation/routing pattern, against the GitHub REST API instead of chatagent-api.
+The `test/` directory holds vitest coverage over the declarative node/credential config: structural checks (every operation has a usable `action`/`description`, valid `routing.request`) plus the two places with real hand-written logic.
+
+Those two are pagination continue/cursor expressions (page-based for Contact/Company, cursor-based for Deal/Conversation) and the Assign-conversation empty-to-`null` value expression. Since `routing` expression strings (`={{ ... }}`) are evaluated by n8n's own expression engine at runtime, not by this package, tests don't `eval`/`new Function` them — this repo's ESLint config (`@n8n/community-nodes/no-dangerous-functions`) forbids that anyway. Instead each test asserts the expression's exact source string (catches accidental edits) alongside a hand-written pure-JS function mirroring its intended semantics (catches logic regressions) — see [[test/pagination.test.ts]] for the pattern.
