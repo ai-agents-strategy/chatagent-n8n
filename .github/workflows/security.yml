@@ -21,4 +21,3 @@ jobs:
         with:
           claude-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
           exclude-directories: 'dist,node_modules,graphify-out'
-          run-every-commit: 'true'
