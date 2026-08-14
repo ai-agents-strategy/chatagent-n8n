@@ -11,7 +11,7 @@ permissions:
 jobs:
   security-review:
     runs-on: ubuntu-latest
-    environment: production
+    environment: ANTHROPIC_API_KEY
     steps:
       - uses: actions/checkout@v4
         with:
