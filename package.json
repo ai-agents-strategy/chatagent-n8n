@@ -13,7 +13,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ai-agents-strategy/chatagent-n8n.git"
+		"url": "git+https://github.com/ai-agents-strategy/chatagent-n8n.git"
 	},
 	"scripts": {
 		"init": "npm install && n8n-node lint",
@@ -28,6 +28,9 @@
 	"files": [
 		"dist"
 	],
+	"publishConfig": {
+		"access": "public"
+	},
 	"n8n": {
 		"n8nNodesApiVersion": 1,
 		"strict": true,
