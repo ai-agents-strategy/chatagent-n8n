@@ -6,3 +6,4 @@ node_modules
 graphify-out
 lat.md/.cache
 .env
+.vscode/settings.json
