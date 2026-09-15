@@ -17,14 +17,17 @@ export const conversationAssignDescription: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'User ID',
+		displayName: 'User Name or ID',
 		name: 'userId',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getOrgMembers',
+		},
 		default: '',
 		displayOptions: {
 			show: showOnlyForConversationAssign,
 		},
-		description: 'User to assign the conversation to. Leave empty to unassign.',
+		description: 'User to assign the conversation to. Leave empty to unassign. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 		routing: {
 			send: {
 				type: 'body',

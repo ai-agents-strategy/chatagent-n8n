@@ -131,10 +131,15 @@ export const conversationGetManyDescription: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Tag ID',
+				displayName: 'Tag Name or ID',
 				name: 'tagId',
-				type: 'string',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getTags',
+				},
 				default: '',
+				description:
+					'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 				routing: {
 					send: {
 						type: 'query',

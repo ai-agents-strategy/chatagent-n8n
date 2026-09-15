@@ -14,7 +14,15 @@ describe('ChatAgent node description', () => {
 	});
 
 	it('reads baseURL from the credential, not hardcoded', () => {
-		expect(description.requestDefaults?.baseURL).toBe('={{$credentials.baseUrl}}');
+		// Exact expression asserted (see pagination.test.ts for the pattern);
+		// an empty or trailing-slash Base URL must not break request URLs.
+		expect(description.requestDefaults?.baseURL).toBe(
+			'={{ ($credentials.baseUrl || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
+		);
+	});
+
+	it('offers org members as a dynamic User ID dropdown for Assign', () => {
+		expect(typeof node.methods?.loadOptions?.getOrgMembers).toBe('function');
 	});
 
 	it('sets a request timeout so a hung chatagent-api call cannot block a workflow forever', () => {

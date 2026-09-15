@@ -20,4 +20,9 @@ describe('Conversation Assign — empty User ID means unassign', () => {
 	it('sends the given user ID when set', () => {
 		expect(resolvedValue('user_123')).toBe('user_123');
 	});
+
+	it('fills the User ID dropdown from chatagent-api org members', () => {
+		expect(userIdField?.type).toBe('options');
+		expect(userIdField?.typeOptions?.loadOptionsMethod).toBe('getOrgMembers');
+	});
 });

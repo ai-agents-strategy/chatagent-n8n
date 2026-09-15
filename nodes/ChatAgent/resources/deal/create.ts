@@ -7,14 +7,19 @@ const showOnlyForDealCreate = {
 
 export const dealCreateDescription: INodeProperties[] = [
 	{
-		displayName: 'Pipeline ID',
+		displayName: 'Pipeline Name or ID',
 		name: 'pipelineId',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getPipelines',
+		},
 		default: '',
 		required: true,
 		displayOptions: {
 			show: showOnlyForDealCreate,
 		},
+		description:
+			'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
 	{
 		displayName: 'Contact ID',
@@ -137,11 +142,15 @@ export const dealCreateDescription: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Stage ID',
+				displayName: 'Stage Name or ID',
 				name: 'stageId',
-				type: 'string',
+				type: 'options',
+				typeOptions: {
+					loadOptionsDependsOn: ['pipelineId'],
+					loadOptionsMethod: 'getStages',
+				},
 				default: '',
-				description: 'Defaults to the pipeline’s first stage if omitted',
+				description: 'Defaults to the pipeline\'s first stage if omitted. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 				routing: {
 					send: {
 						type: 'body',

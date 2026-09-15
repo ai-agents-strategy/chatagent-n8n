@@ -72,6 +72,36 @@ export const contactGetManyDescription: INodeProperties[] = [
 		},
 		options: [
 			{
+				displayName: 'Assigned User Filter',
+				name: 'assigneeFilter',
+				type: 'options',
+				options: [
+					{ name: 'Assigned to Me', value: 'me' },
+					{ name: 'Unassigned', value: 'unassigned' },
+				],
+				default: 'me',
+				description: 'Show only contacts assigned to you, or only unassigned ones',
+				routing: {
+					send: {
+						type: 'query',
+						property: 'assigneeFilter',
+					},
+				},
+			},
+			{
+				displayName: 'Assigned User ID',
+				name: 'assigneeUserId',
+				type: 'string',
+				default: '',
+				description: 'Show only contacts assigned to this user',
+				routing: {
+					send: {
+						type: 'query',
+						property: 'assigneeUserId',
+					},
+				},
+			},
+			{
 				displayName: 'Company ID',
 				name: 'companyId',
 				type: 'string',
@@ -80,6 +110,53 @@ export const contactGetManyDescription: INodeProperties[] = [
 					send: {
 						type: 'query',
 						property: 'companyId',
+					},
+				},
+			},
+			{
+				displayName: 'Deal Activity',
+				name: 'dealActivityPreset',
+				type: 'options',
+				options: [
+					{ name: 'Active in Last 7 Days', value: 'active_7d' },
+					{ name: 'Active in Last 30 Days', value: 'active_30d' },
+					{ name: 'No Activity', value: 'none' },
+					{ name: 'Stale for 30 Days', value: 'stale_30d' },
+				],
+				default: 'active_7d',
+				description: 'Filter by recent deal activity',
+				routing: {
+					send: {
+						type: 'query',
+						property: 'dealActivityPreset',
+					},
+				},
+			},
+			{
+				displayName: 'Deal Filter',
+				name: 'dealFilter',
+				type: 'options',
+				options: [
+					{ name: 'Has Deal', value: 'has_deal' },
+					{ name: 'No Deal', value: 'no_deal' },
+				],
+				default: 'has_deal',
+				routing: {
+					send: {
+						type: 'query',
+						property: 'dealFilter',
+					},
+				},
+			},
+			{
+				displayName: 'Pipeline ID',
+				name: 'pipelineId',
+				type: 'string',
+				default: '',
+				routing: {
+					send: {
+						type: 'query',
+						property: 'pipelineId',
 					},
 				},
 			},
@@ -130,10 +207,27 @@ export const contactGetManyDescription: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Tag ID',
-				name: 'tagId',
+				displayName: 'Stage ID',
+				name: 'stageId',
 				type: 'string',
 				default: '',
+				routing: {
+					send: {
+						type: 'query',
+						property: 'stageId',
+					},
+				},
+			},
+			{
+				displayName: 'Tag Name or ID',
+				name: 'tagId',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getTags',
+				},
+				default: '',
+				description:
+					'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 				routing: {
 					send: {
 						type: 'query',

@@ -11,7 +11,7 @@ export class ChatAgentApi implements ICredentialType {
 
 	displayName = 'ChatAgent API';
 
-	icon: Icon = { light: 'file:../icons/chatagent.svg', dark: 'file:../icons/chatagent.dark.svg' };
+	icon: Icon = { light: 'file:../icons/favicon.svg', dark: 'file:../icons/favicon.dark.svg' };
 
 	documentationUrl = 'https://www.chatagent.so';
 
@@ -23,12 +23,12 @@ export class ChatAgentApi implements ICredentialType {
 			default: 'https://api.chatagent.so',
 		},
 		{
-			displayName: 'Access Token',
-			name: 'accessToken',
+			displayName: 'API Key',
+			name: 'apiKey',
 			type: 'string',
 			typeOptions: { password: true },
 			default: '',
-			description: 'Bearer token for a ChatAgent organization user (JWT issued by ChatAgent auth)',
+			description: 'API key issued for a ChatAgent organization',
 		},
 	];
 
@@ -36,19 +36,16 @@ export class ChatAgentApi implements ICredentialType {
 		type: 'generic',
 		properties: {
 			headers: {
-				Authorization: '=Bearer {{$credentials.accessToken}}',
+				'x-api-key': '={{$credentials.apiKey}}',
 			},
 		},
 	};
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: '={{$credentials.baseUrl}}',
-			url: '/contacts',
+			baseURL: '={{ ($credentials.baseUrl || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
+			url: '/auth/org-context',
 			method: 'GET',
-			qs: {
-				limit: '1',
-			},
 		},
 	};
 }

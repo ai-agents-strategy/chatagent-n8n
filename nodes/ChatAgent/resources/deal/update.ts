@@ -7,14 +7,19 @@ const showOnlyForDealUpdate = {
 
 export const dealUpdateDescription: INodeProperties[] = [
 	{
-		displayName: 'Pipeline ID',
+		displayName: 'Pipeline Name or ID',
 		name: 'pipelineId',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getPipelines',
+		},
 		default: '',
 		required: true,
 		displayOptions: {
 			show: showOnlyForDealUpdate,
 		},
+		description:
+			'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
 	{
 		displayName: 'Deal ID',

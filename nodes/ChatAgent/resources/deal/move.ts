@@ -7,15 +7,18 @@ const showOnlyForDealMove = {
 
 export const dealMoveDescription: INodeProperties[] = [
 	{
-		displayName: 'Pipeline ID',
+		displayName: 'Pipeline Name or ID',
 		name: 'pipelineId',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getPipelines',
+		},
 		default: '',
 		required: true,
 		displayOptions: {
 			show: showOnlyForDealMove,
 		},
-		description: 'The deal’s current pipeline',
+		description: 'The deal\'s current pipeline. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 	},
 	{
 		displayName: 'Deal ID',
@@ -28,15 +31,19 @@ export const dealMoveDescription: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Stage ID',
+		displayName: 'Stage Name or ID',
 		name: 'stageId',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsDependsOn: ['pipelineId'],
+			loadOptionsMethod: 'getStages',
+		},
 		default: '',
 		required: true,
 		displayOptions: {
 			show: showOnlyForDealMove,
 		},
-		description: 'The stage to move the deal into',
+		description: 'The stage to move the deal into. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 		routing: {
 			send: {
 				type: 'body',
@@ -75,11 +82,14 @@ export const dealMoveDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				displayName: 'Target Pipeline ID',
+				displayName: 'Target Pipeline Name or ID',
 				name: 'targetPipelineId',
-				type: 'string',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getPipelines',
+				},
 				default: '',
-				description: 'Set to move the deal into a different pipeline; defaults to the current one',
+				description: 'Set to move the deal into a different pipeline; defaults to the current one. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 				routing: {
 					send: {
 						type: 'body',

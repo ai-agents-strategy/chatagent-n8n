@@ -6,6 +6,9 @@ import { conversationSendMessageDescription } from './sendMessage';
 import { conversationUpdateStatusDescription } from './updateStatus';
 import { conversationAssignDescription } from './assign';
 import { conversationClaimDescription } from './claim';
+import { conversationMarkReadDescription } from './markRead';
+import { conversationRetryMessageDescription } from './retryMessage';
+import { conversationUnreadCountDescription } from './unreadCount';
 
 const showOnlyForConversations = {
 	resource: ['conversation'],
@@ -152,6 +155,55 @@ export const conversationDescription: INodeProperties[] = [
 					...unwrapData,
 				},
 			},
+			{
+				name: 'Mark as Read',
+				value: 'markRead',
+				action: 'Mark a conversation as read',
+				description: 'Mark all unread messages in a conversation as read',
+				routing: {
+					request: {
+						method: 'POST',
+						url: '=/conversations/{{$parameter.conversationId}}/read',
+					},
+					...unwrapData,
+				},
+			},
+			{
+				name: 'Retry Message',
+				value: 'retryMessage',
+				action: 'Retry a conversation message',
+				description: 'Re-send a previously failed outbound message',
+				routing: {
+					request: {
+						method: 'POST',
+						url: '=/conversations/{{$parameter.conversationId}}/messages/{{$parameter.messageId}}/retry',
+					},
+					// Same double-wrapped { data: { message: {...} } } as Send Message
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'data.message',
+								},
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Get Unread Count',
+				value: 'unreadCount',
+				action: 'Get the unread conversation count',
+				description: 'Number of unread messages across the organization inbox',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '/conversations/unread-count',
+					},
+					...unwrapData,
+				},
+			},
 		],
 		default: 'getAll',
 	},
@@ -162,4 +214,7 @@ export const conversationDescription: INodeProperties[] = [
 	...conversationUpdateStatusDescription,
 	...conversationAssignDescription,
 	...conversationClaimDescription,
+	...conversationMarkReadDescription,
+	...conversationRetryMessageDescription,
+	...conversationUnreadCountDescription,
 ];
