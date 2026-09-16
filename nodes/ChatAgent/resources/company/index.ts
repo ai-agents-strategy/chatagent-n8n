@@ -37,7 +37,7 @@ export const companyDescription: INodeProperties[] = [
 				value: 'create',
 				action: 'Create company',
 				description:
-					'Create a new company. Always check Get Many with the Search filter for an existing company (by name or domain) first — this operation has no dedupe/upsert, so calling it again creates a second company',
+					'Create a new company. Always check Get Many with the Search filter for an existing company (by name or domain) first — this operation has no dedupe/upsert, so calling it again creates a second company.',
 				routing: {
 					request: {
 						method: 'POST',

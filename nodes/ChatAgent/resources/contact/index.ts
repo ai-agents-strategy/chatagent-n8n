@@ -37,7 +37,7 @@ export const contactDescription: INodeProperties[] = [
 				value: 'create',
 				action: 'Create contact',
 				description:
-					'Create a new contact. Always check Get Many with the Search filter for an existing contact (by email or phone) first — this operation has no dedupe/upsert, so calling it again creates a second contact',
+					'Create a new contact. Always check Get Many with the Search filter for an existing contact (by email or phone) first — this operation has no dedupe/upsert, so calling it again creates a second contact.',
 				routing: {
 					request: {
 						method: 'POST',

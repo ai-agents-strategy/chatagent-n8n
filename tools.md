@@ -291,4 +291,3 @@ Baru kita buat **Customer Relationship Memory Tool** yang menjadi core different
 
 ---
 
-Kalau kamu kasih saya **`ChatAgent.node.ts` yang sekarang + `package.json`**, saya bisa bantu refactor **berdasarkan struktur package kalian yang nyata**, termasuk menentukan file mana yang perlu ditambah dan perubahan `inputs/outputs` supaya node tersebut benar-benar muncul sebagai **Tool di n8n AI Agent**.
