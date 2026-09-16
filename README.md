@@ -73,6 +73,8 @@ Errors surface as standard n8n HTTP errors (status code + response body); the mo
 
 Use each node's **Continue On Fail** setting to keep a workflow running past a single failed item instead of aborting the whole execution.
 
+**Duplicate Contacts/Companies from AI Agent tool use:** Contact Create and Company Create have no dedupe/upsert — each call always inserts a new record. When the ChatAgent node is used as an AI Agent tool, a model that retries or re-plans mid-turn can call Create several times in one execution, producing duplicate records. Their tool descriptions now tell the agent to check Get Many with the Search filter first, but a workflow that must guarantee no duplicates should still search-then-create explicitly with an `IF` node, or dedupe server-side.
+
 ## Resources
 
 * [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)

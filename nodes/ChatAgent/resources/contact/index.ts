@@ -35,8 +35,9 @@ export const contactDescription: INodeProperties[] = [
 			{
 				name: 'Create',
 				value: 'create',
-				action: 'Create a contact',
-				description: 'Create a new contact',
+				action: 'Create contact',
+				description:
+					'Create a new contact. Always check Get Many with the Search filter for an existing contact (by email or phone) first — this operation has no dedupe/upsert, so calling it again creates a second contact',
 				routing: {
 					request: {
 						method: 'POST',
@@ -48,7 +49,7 @@ export const contactDescription: INodeProperties[] = [
 			{
 				name: 'Get',
 				value: 'get',
-				action: 'Get a contact',
+				action: 'Get contact',
 				description: 'Get a single contact by ID',
 				routing: {
 					request: {
@@ -83,7 +84,7 @@ export const contactDescription: INodeProperties[] = [
 			{
 				name: 'Update',
 				value: 'update',
-				action: 'Update a contact',
+				action: 'Update contact',
 				description: 'Update an existing contact',
 				routing: {
 					request: {
@@ -96,7 +97,7 @@ export const contactDescription: INodeProperties[] = [
 			{
 				name: 'Delete',
 				value: 'delete',
-				action: 'Delete a contact',
+				action: 'Delete contact',
 				description: 'Delete a contact',
 				routing: {
 					request: {

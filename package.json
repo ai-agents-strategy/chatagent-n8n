@@ -40,7 +40,10 @@
 			"dist/credentials/ChatAgentApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/ChatAgent/ChatAgent.node.js"
+			"dist/nodes/ChatAgent/ChatAgent.node.js",
+			"dist/nodes/ChatAgentSearchCustomer/ChatAgentSearchCustomer.node.js",
+			"dist/nodes/ChatAgentConversationHistory/ChatAgentConversationHistory.node.js",
+			"dist/nodes/ChatAgentSendMessage/ChatAgentSendMessage.node.js"
 		]
 	},
 	"devDependencies": {

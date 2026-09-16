@@ -24,11 +24,15 @@ Get Many implements page-based pagination (`page`/`limit` query params, not offs
 
 Get Many's Filters collection exposes the list endpoint's main filter set — `companyId`, `search`, `tagId`, `assigneeFilter` (me/unassigned), `assigneeUserId`, `dealFilter` (has_deal/no_deal), `dealActivityPreset` (active_7d/active_30d/none/stale_30d), `pipelineId`, `stageId`, plus `sortBy`/`sortOrder` — mirroring the query params chatagent-api's contact list DTO accepts. The multi-value variants (`tagIds`, `pipelineIds`, `stageIds`, `assigneeUserIds`, …) and `archived` are still unexposed; add them as `getAll.ts` options if a workflow needs them.
 
+Create has no dedupe/upsert — chatagent-api's `POST /contacts` always inserts, so calling Create twice with the same email/phone makes two contacts. This bit an AI Agent workflow where a retried tool call created many duplicate contacts in one execution; the fix (given the node has no `execute()` to add a pre-check in) is in Create's `action`/`description` string in [[nodes/ChatAgent/resources/contact/index.ts#contactDescription]] — that's the text the LLM tool-picker reads, so it now tells the agent to search by email/phone via Get Many first.
+
 ### Company resource
 
 [[nodes/ChatAgent/resources/company/index.ts#companyDescription]] covers Create/Get/Get Many/Update/Delete against chatagent-api's `/companies` routes, same shape as the Contact resource (name/domain/phone/email/websiteUrl/customFields fields, same page-based Get Many pagination).
 
 Companies are gated behind the `company_management` product feature on the chatagent-api side — orgs without that plan feature get a 403 from every company operation, surfaced to the workflow as a regular HTTP error since this node has no feature-flag pre-check of its own.
+
+Same no-dedupe/upsert caveat as Contact Create applies here — see above.
 
 ### Pipeline resource
 
@@ -62,8 +66,34 @@ Not covered: media messages/upload-url flow, message/global search, conversation
 
 Other chatagent-api domains (knowledge base, agents) are not yet covered — add a sibling `resources/<name>/` directory following the same index.ts + operation-file pattern when needed.
 
+## ChatAgent Search Customer node
+
+[[nodes/ChatAgentSearchCustomer/ChatAgentSearchCustomer.node.ts#ChatAgentSearchCustomer]] is a single-purpose sibling node — `GET /contacts?search=...` only — that exists to give the n8n AI Agent a narrow, crisp tool instead of making it navigate the main ChatAgent node's full Resource/Operation surface.
+
+The main [[nodes/ChatAgent/ChatAgent.node.ts#ChatAgent]] node's `usableAsTool: true` already makes it pickable by the AI Agent, but as *one* tool covering every resource and operation — the LLM has to fill Resource, Operation, and every field itself, which is close to the generic `action`/`payload` shape that's hard for an LLM to use reliably. A dedicated node per common AI action avoids that: this node exposes only `Query` (required, free-text over name/email/phone) and `Limit` (default 50) as fillable parameters — everything else the request needs (`GET /contacts`, the `data.items` response unwrap) is fixed on a `type: 'hidden'` field, invisible to both the n8n UI and the AI Agent's tool schema.
+
+It shares the same `chatAgentApi` credential and `requestDefaults.baseURL` expression as the main node (see above), and is registered as its own entry in `package.json`'s `n8n.nodes` array and its own `ChatAgentSearchCustomer.node.json` codex file, since n8n treats each node type as a separate file rather than a resource within one node. Add further single-purpose AI-tool nodes the same way rather than growing this one node past its one action.
+
+## ChatAgent Conversation History node
+
+[[nodes/ChatAgentConversationHistory/ChatAgentConversationHistory.node.ts#ChatAgentConversationHistory]] is a single-purpose sibling node — `GET /conversations/:id/messages` only — built the same way as [[nodes/ChatAgentSearchCustomer/ChatAgentSearchCustomer.node.ts#ChatAgentSearchCustomer]].
+
+A hidden `operation` field carries the fixed request and `data.messages` unwrap, leaving only `Conversation ID` (required) and `Limit` (default 50) fillable by the AI Agent. It intentionally does not expose the main Conversation resource's `returnAll`/cursor pagination or `direction` field — an AI tool call is a single request-response turn, so unbounded pagination isn't a fit; an agent that needs older messages should raise `Limit` or call again with judgement, not auto-paginate.
+
+## ChatAgent Send Message node
+
+[[nodes/ChatAgentSendMessage/ChatAgentSendMessage.node.ts#ChatAgentSendMessage]] is a single-purpose sibling node — `POST /conversations/:id/messages` only — exposing just `Conversation ID` and `Message` to the AI Agent.
+
+Its hidden `operation` field fixes `messageType: 'text'` via a static `routing.send.value` (the same "field with a literal `send.value` rather than the field's own value" pattern Contact Get Many's `Return All` pagination uses), so this tool can only ever send a customer-visible message — never silently write an internal note — unlike the main node's Send Message operation, which exposes `messageType` as a choice.
+
+Both new nodes need a `Conversation ID`, but no exposed lookup goes customer → conversation directly: chatagent-api's conversations list doesn't accept a `contactId` filter (only [[nodes/ChatAgent/resources/contact/index.ts#contactDescription]]'s Get Many search does), so a workflow/agent chaining Search Customer → Conversation History today needs a conversation ID from elsewhere (e.g. Conversation Get Many's own `Search`, or a value already in context) — this is a chatagent-api-side gap, not something to work around in this node package.
+
+The tools.md roadmap's other two proposed tools — Relationship Memory and Create Follow-up — have no backing chatagent-api endpoint yet (no `follow-up` or `memory` concept exists in its modules as of this writing); building either here would call a route that doesn't exist. They stay unbuilt until chatagent-api adds the underlying feature.
+
 ## Testing
 
 The `test/` directory holds vitest coverage over the declarative node/credential config: structural checks (every operation has a usable `action`/`description`, valid `routing.request`) plus the three places with real hand-written logic.
 
 Those three are the pagination continue/cursor expressions (page-based for Contact/Company, cursor-based for Deal/Conversation), the Assign-conversation empty-to-`null` value expression, and the Base URL normalization expression (default-empty-to-production + trailing-slash strip, shared by `requestDefaults.baseURL` and the credential test). Since `routing` expression strings (`={{ ... }}`) are evaluated by n8n's own expression engine at runtime, not by this package, tests don't `eval`/`new Function` them — this repo's ESLint config (`@n8n/community-nodes/no-dangerous-functions`) forbids that anyway. Instead each test asserts the expression's exact source string (catches accidental edits) alongside a hand-written pure-JS function mirroring its intended semantics (catches logic regressions) — see [[test/pagination.test.ts]] for the pattern. The `methods.loadOptions` helpers are only asserted for wiring — every `loadOptionsMethod` used by a field must name a loader that actually exists, and the stage dropdowns must re-fetch on pipeline change — in [[test/load-options.test.ts]], since exercising their HTTP calls needs a live credential.
+
+[[test/chatagent-search-customer-node.test.ts]] covers the Search Customer node the same way as [[test/chatagent-node.test.ts]] covers the main node, plus asserting the hidden operation field's fixed `GET /contacts` routing and that only `query`/`limit` are non-hidden (i.e. exposed to the AI Agent tool schema). [[test/chatagent-conversation-history-node.test.ts]] and [[test/chatagent-send-message-node.test.ts]] follow the identical pattern for their own hidden-field routing and fillable-parameter set.

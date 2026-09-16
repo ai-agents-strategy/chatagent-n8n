@@ -35,8 +35,9 @@ export const companyDescription: INodeProperties[] = [
 			{
 				name: 'Create',
 				value: 'create',
-				action: 'Create a company',
-				description: 'Create a new company',
+				action: 'Create company',
+				description:
+					'Create a new company. Always check Get Many with the Search filter for an existing company (by name or domain) first — this operation has no dedupe/upsert, so calling it again creates a second company',
 				routing: {
 					request: {
 						method: 'POST',
@@ -48,7 +49,7 @@ export const companyDescription: INodeProperties[] = [
 			{
 				name: 'Get',
 				value: 'get',
-				action: 'Get a company',
+				action: 'Get company',
 				description: 'Get a single company by ID',
 				routing: {
 					request: {
@@ -83,7 +84,7 @@ export const companyDescription: INodeProperties[] = [
 			{
 				name: 'Update',
 				value: 'update',
-				action: 'Update a company',
+				action: 'Update company',
 				description: 'Update an existing company',
 				routing: {
 					request: {
@@ -96,7 +97,7 @@ export const companyDescription: INodeProperties[] = [
 			{
 				name: 'Delete',
 				value: 'delete',
-				action: 'Delete a company',
+				action: 'Delete company',
 				description: 'Delete a company',
 				routing: {
 					request: {
