@@ -34,6 +34,15 @@ Companies are gated behind the `company_management` product feature on the chata
 
 Same no-dedupe/upsert caveat as Contact Create applies here — see above.
 
+Address is not a field on Company — chatagent-api models it as a separate `addresses` table (shared with Contact, one-to-many via `companyId`/`contactId` FK), so it's exposed as four extra operations folded into this same resource rather than fields on Create/Update: `createAddress`/`getAddresses`/`updateAddress`/`deleteAddress` in [[nodes/ChatAgent/resources/company/index.ts#companyDescription]], routing to `/companies/:companyId/addresses[/:addressId]`. Folded rather than split into a separate top-level resource because every address operation requires a `companyId` anyway (same nested-under-parent shape as Deal's `pipelineId`), unlike Contact/Company which are independently listable.
+
+- [[nodes/ChatAgent/resources/company/createAddress.ts#companyCreateAddressDescription]] — `companyId` plus an "Address Fields" collection (label, line1, line2, city, state, postalCode, country, formattedAddress, isPrimary, latitude, longitude, metadata JSON), mirroring chatagent-api's `CreateAddressDto`. `isPrimary` defaults to unset — the API auto-promotes the first address created for an owner to primary.
+- [[nodes/ChatAgent/resources/company/getAddresses.ts#companyGetAddressesDescription]] — `companyId` only. The response is a bare array under `data` (not `data.items` — chatagent-api doesn't paginate an owner's address list), so its `postReceive` extractor in `index.ts` differs from every other Company operation.
+- [[nodes/ChatAgent/resources/company/updateAddress.ts#companyUpdateAddressDescription]] — `companyId` + `addressId`, same field set as Create but inside an "Update Fields" collection (only fields the caller sets are patched).
+- [[nodes/ChatAgent/resources/company/deleteAddress.ts#companyDeleteAddressDescription]] — `companyId` + `addressId`, no body.
+
+Geocoding fields (`geocodeStatus`, `geocodeProvider`, `geocodePlaceId`, `geocodedAt`) are deliberately not exposed — chatagent-api resolves them server-side (background geocode on create/update when `line1`/`city`/etc text changes and no manual lat/lng is given), so surfacing them would let a workflow set inconsistent state. Write operations (create/update/delete) require the `manage_profiles` org permission on top of the `company_management` feature gate above; Get Addresses only needs base access.
+
 ### Pipeline resource
 
 [[nodes/ChatAgent/resources/pipeline/index.ts#pipelineDescription]] is read-only: Get Many (`/pipelines`) and Get Stages (`/pipelines/:pipelineId/stages`). It exists so a workflow can look up `pipelineId`/`stageId` values before calling the Deal resource — pipeline/stage CRUD itself is out of scope for v1.
