@@ -18,7 +18,7 @@ describe('ChatAgentConversationHistory node description', () => {
 		expect(operationField?.type).toBe('hidden');
 		const routing = operationField?.routing as { request?: { method?: string; url?: string } };
 		expect(routing?.request?.method).toBe('GET');
-		expect(routing?.request?.url).toBe('=/conversations/{{$parameter.conversationId}}/messages');
+		expect(routing?.request?.url).toBe('=/conversations/{{encodeURIComponent(String($parameter.conversationId).trim())}}/messages');
 	});
 
 	it('exposes only Conversation ID and Limit as fillable parameters', () => {

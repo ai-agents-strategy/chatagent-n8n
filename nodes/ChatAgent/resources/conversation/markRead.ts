@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForConversationMarkRead = {
 	operation: ['markRead'],
@@ -6,14 +7,5 @@ const showOnlyForConversationMarkRead = {
 };
 
 export const conversationMarkReadDescription: INodeProperties[] = [
-	{
-		displayName: 'Conversation ID',
-		name: 'conversationId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForConversationMarkRead,
-		},
-	},
+	...idField('conversationId', showOnlyForConversationMarkRead),
 ];

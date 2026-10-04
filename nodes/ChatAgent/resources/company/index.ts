@@ -58,7 +58,7 @@ export const companyDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/companies/{{$parameter.companyId}}',
+						url: '=/companies/{{encodeURIComponent(String($parameter.companyId).trim())}}',
 					},
 					...unwrapData,
 				},
@@ -93,7 +93,7 @@ export const companyDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'PATCH',
-						url: '=/companies/{{$parameter.companyId}}',
+						url: '=/companies/{{encodeURIComponent(String($parameter.companyId).trim())}}',
 					},
 					...unwrapData,
 				},
@@ -106,7 +106,7 @@ export const companyDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'DELETE',
-						url: '=/companies/{{$parameter.companyId}}',
+						url: '=/companies/{{encodeURIComponent(String($parameter.companyId).trim())}}',
 					},
 					...unwrapData,
 				},
@@ -120,7 +120,7 @@ export const companyDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '=/companies/{{$parameter.companyId}}/addresses',
+						url: '=/companies/{{encodeURIComponent(String($parameter.companyId).trim())}}/addresses',
 					},
 					...unwrapData,
 				},
@@ -133,7 +133,7 @@ export const companyDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/companies/{{$parameter.companyId}}/addresses',
+						url: '=/companies/{{encodeURIComponent(String($parameter.companyId).trim())}}/addresses',
 					},
 					output: {
 						postReceive: [
@@ -155,7 +155,7 @@ export const companyDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'PATCH',
-						url: '=/companies/{{$parameter.companyId}}/addresses/{{$parameter.addressId}}',
+						url: '=/companies/{{encodeURIComponent(String($parameter.companyId).trim())}}/addresses/{{encodeURIComponent(String($parameter.addressId).trim())}}',
 					},
 					...unwrapData,
 				},
@@ -168,7 +168,7 @@ export const companyDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'DELETE',
-						url: '=/companies/{{$parameter.companyId}}/addresses/{{$parameter.addressId}}',
+						url: '=/companies/{{encodeURIComponent(String($parameter.companyId).trim())}}/addresses/{{encodeURIComponent(String($parameter.addressId).trim())}}',
 					},
 					...unwrapData,
 				},

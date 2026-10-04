@@ -26,7 +26,7 @@ export class ChatAgentSendMessage implements INodeType {
 		requestDefaults: {
 			// Empty or trailing-slash Base URLs would otherwise produce broken or
 			// double-slash request URLs, so default and strip before use.
-			baseURL: '={{ ($credentials.baseUrl || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
+			baseURL: '={{ (String($credentials.baseUrl || "").trim() || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ export class ChatAgentSendMessage implements INodeType {
 					},
 					request: {
 						method: 'POST',
-						url: '=/conversations/{{$parameter.conversationId}}/messages',
+						url: '=/conversations/{{encodeURIComponent(String($parameter.conversationId).trim())}}/messages',
 					},
 					output: {
 						postReceive: [

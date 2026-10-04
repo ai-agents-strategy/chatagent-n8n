@@ -54,7 +54,7 @@ export const contactDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/contacts/{{$parameter.contactId}}',
+						url: '=/contacts/{{encodeURIComponent(String($parameter.contactId).trim())}}',
 					},
 					...unwrapData,
 				},
@@ -89,7 +89,7 @@ export const contactDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'PATCH',
-						url: '=/contacts/{{$parameter.contactId}}',
+						url: '=/contacts/{{encodeURIComponent(String($parameter.contactId).trim())}}',
 					},
 					...unwrapData,
 				},
@@ -102,7 +102,7 @@ export const contactDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'DELETE',
-						url: '=/contacts/{{$parameter.contactId}}',
+						url: '=/contacts/{{encodeURIComponent(String($parameter.contactId).trim())}}',
 					},
 					...unwrapData,
 				},

@@ -41,7 +41,7 @@ export const dealDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '=/pipelines/{{$parameter.pipelineId}}/deals',
+						url: '=/pipelines/{{encodeURIComponent(String($parameter.pipelineId).trim())}}/deals',
 					},
 					...unwrapData,
 				},
@@ -54,7 +54,7 @@ export const dealDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/pipelines/{{$parameter.pipelineId}}/deals/{{$parameter.dealId}}',
+						url: '=/pipelines/{{encodeURIComponent(String($parameter.pipelineId).trim())}}/deals/{{encodeURIComponent(String($parameter.dealId).trim())}}',
 					},
 					...unwrapData,
 				},
@@ -67,7 +67,7 @@ export const dealDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/pipelines/{{$parameter.pipelineId}}/deals',
+						url: '=/pipelines/{{encodeURIComponent(String($parameter.pipelineId).trim())}}/deals',
 					},
 					output: {
 						postReceive: [
@@ -89,7 +89,7 @@ export const dealDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'PATCH',
-						url: '=/pipelines/{{$parameter.pipelineId}}/deals/{{$parameter.dealId}}',
+						url: '=/pipelines/{{encodeURIComponent(String($parameter.pipelineId).trim())}}/deals/{{encodeURIComponent(String($parameter.dealId).trim())}}',
 					},
 					...unwrapData,
 				},
@@ -102,7 +102,7 @@ export const dealDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'PATCH',
-						url: '=/pipelines/{{$parameter.pipelineId}}/deals/{{$parameter.dealId}}/move',
+						url: '=/pipelines/{{encodeURIComponent(String($parameter.pipelineId).trim())}}/deals/{{encodeURIComponent(String($parameter.dealId).trim())}}/move',
 					},
 					...unwrapData,
 				},
@@ -115,7 +115,7 @@ export const dealDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'DELETE',
-						url: '=/pipelines/{{$parameter.pipelineId}}/deals/{{$parameter.dealId}}',
+						url: '=/pipelines/{{encodeURIComponent(String($parameter.pipelineId).trim())}}/deals/{{encodeURIComponent(String($parameter.dealId).trim())}}',
 					},
 					...unwrapData,
 				},

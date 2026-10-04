@@ -21,7 +21,7 @@ describe('ChatAgentSendMessage node description', () => {
 			send?: { property?: string; value?: string };
 		};
 		expect(routing?.request?.method).toBe('POST');
-		expect(routing?.request?.url).toBe('=/conversations/{{$parameter.conversationId}}/messages');
+		expect(routing?.request?.url).toBe('=/conversations/{{encodeURIComponent(String($parameter.conversationId).trim())}}/messages');
 		expect(routing?.send?.property).toBe('messageType');
 		expect(routing?.send?.value).toBe('text');
 	});

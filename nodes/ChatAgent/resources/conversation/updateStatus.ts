@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForConversationUpdateStatus = {
 	operation: ['updateStatus'],
@@ -6,16 +7,7 @@ const showOnlyForConversationUpdateStatus = {
 };
 
 export const conversationUpdateStatusDescription: INodeProperties[] = [
-	{
-		displayName: 'Conversation ID',
-		name: 'conversationId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForConversationUpdateStatus,
-		},
-	},
+	...idField('conversationId', showOnlyForConversationUpdateStatus),
 	{
 		displayName: 'Status',
 		name: 'status',

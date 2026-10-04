@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForContactUpdate = {
 	operation: ['update'],
@@ -6,16 +7,7 @@ const showOnlyForContactUpdate = {
 };
 
 export const contactUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Contact ID',
-		name: 'contactId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForContactUpdate,
-		},
-	},
+	...idField('contactId', showOnlyForContactUpdate),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',

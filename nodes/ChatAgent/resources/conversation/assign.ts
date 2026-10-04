@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForConversationAssign = {
 	operation: ['assign'],
@@ -6,16 +7,7 @@ const showOnlyForConversationAssign = {
 };
 
 export const conversationAssignDescription: INodeProperties[] = [
-	{
-		displayName: 'Conversation ID',
-		name: 'conversationId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForConversationAssign,
-		},
-	},
+	...idField('conversationId', showOnlyForConversationAssign),
 	{
 		displayName: 'User Name or ID',
 		name: 'userId',

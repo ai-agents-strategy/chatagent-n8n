@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForCompanyUpdate = {
 	operation: ['update'],
@@ -6,16 +7,7 @@ const showOnlyForCompanyUpdate = {
 };
 
 export const companyUpdateDescription: INodeProperties[] = [
-	{
-		displayName: 'Company ID',
-		name: 'companyId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForCompanyUpdate,
-		},
-	},
+	...idField('companyId', showOnlyForCompanyUpdate),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',

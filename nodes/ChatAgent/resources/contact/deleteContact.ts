@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForContactDelete = {
 	operation: ['delete'],
@@ -6,14 +7,5 @@ const showOnlyForContactDelete = {
 };
 
 export const contactDeleteDescription: INodeProperties[] = [
-	{
-		displayName: 'Contact ID',
-		name: 'contactId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForContactDelete,
-		},
-	},
+	...idField('contactId', showOnlyForContactDelete),
 ];

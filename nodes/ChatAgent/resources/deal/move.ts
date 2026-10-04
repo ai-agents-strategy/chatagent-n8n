@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForDealMove = {
 	operation: ['move'],
@@ -20,16 +21,7 @@ export const dealMoveDescription: INodeProperties[] = [
 		},
 		description: 'The deal\'s current pipeline. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 	},
-	{
-		displayName: 'Deal ID',
-		name: 'dealId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForDealMove,
-		},
-	},
+	...idField('dealId', showOnlyForDealMove),
 	{
 		displayName: 'Stage Name or ID',
 		name: 'stageId',

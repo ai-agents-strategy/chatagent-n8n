@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForConversationSendMessage = {
 	operation: ['sendMessage'],
@@ -6,16 +7,7 @@ const showOnlyForConversationSendMessage = {
 };
 
 export const conversationSendMessageDescription: INodeProperties[] = [
-	{
-		displayName: 'Conversation ID',
-		name: 'conversationId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForConversationSendMessage,
-		},
-	},
+	...idField('conversationId', showOnlyForConversationSendMessage),
 	{
 		displayName: 'Content',
 		name: 'contentText',

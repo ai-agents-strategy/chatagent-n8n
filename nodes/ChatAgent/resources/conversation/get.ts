@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForConversationGet = {
 	operation: ['get'],
@@ -6,14 +7,5 @@ const showOnlyForConversationGet = {
 };
 
 export const conversationGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Conversation ID',
-		name: 'conversationId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForConversationGet,
-		},
-	},
+	...idField('conversationId', showOnlyForConversationGet),
 ];

@@ -50,7 +50,7 @@ export const pipelineDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/pipelines/{{$parameter.pipelineId}}/stages',
+						url: '=/pipelines/{{encodeURIComponent(String($parameter.pipelineId).trim())}}/stages',
 					},
 					...unwrapData,
 				},

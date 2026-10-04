@@ -17,8 +17,13 @@ describe('ChatAgent node description', () => {
 		// Exact expression asserted (see pagination.test.ts for the pattern);
 		// an empty or trailing-slash Base URL must not break request URLs.
 		expect(description.requestDefaults?.baseURL).toBe(
-			'={{ ($credentials.baseUrl || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
+			'={{ (String($credentials.baseUrl || "").trim() || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
 		);
+	});
+
+	it('defaults to node v2 (resource locator IDs) and still loads v1', () => {
+		expect(description.version).toEqual([1, 2]);
+		expect(description.defaultVersion).toBe(2);
 	});
 
 	it('offers org members as a dynamic User ID dropdown for Assign', () => {

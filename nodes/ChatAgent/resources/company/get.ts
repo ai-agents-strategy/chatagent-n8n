@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForCompanyGet = {
 	operation: ['get'],
@@ -6,14 +7,5 @@ const showOnlyForCompanyGet = {
 };
 
 export const companyGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Company ID',
-		name: 'companyId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForCompanyGet,
-		},
-	},
+	...idField('companyId', showOnlyForCompanyGet),
 ];

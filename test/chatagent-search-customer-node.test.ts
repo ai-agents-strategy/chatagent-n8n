@@ -15,7 +15,7 @@ describe('ChatAgentSearchCustomer node description', () => {
 
 	it('reads baseURL from the credential, not hardcoded', () => {
 		expect(description.requestDefaults?.baseURL).toBe(
-			'={{ ($credentials.baseUrl || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
+			'={{ (String($credentials.baseUrl || "").trim() || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
 		);
 	});
 

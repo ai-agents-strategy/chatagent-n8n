@@ -31,6 +31,14 @@ Every operation follows n8n's declarative-routing pattern (resource → operatio
 
 Pipeline, stage, tag, and assignee dropdowns fill dynamically from your organization's data — no ID copy-pasting.
 
+Contact, Company, Address, Conversation, and Deal pickers (node version 2) are resource locators with three modes:
+
+- **From List** — searchable list of records in the API key's organization (Deal lists follow the chosen Pipeline, Address lists follow the chosen Company).
+- **By URL** — paste a ChatAgent app link, e.g. `https://app.chatagent.so/customers/<id>` (contact), `/customers/companies/<id>` (company), `/inbox?id=<id>` (conversation), or `/pipelines/<pipelineId>/deals?dealId=<id>` (deal — keep the Pipeline field on the same pipeline).
+- **By ID** — a raw ChatAgent ID (UUID), validated before the request is sent. Use this mode with an expression to map IDs from earlier nodes.
+
+Workflows saved before version 2 keep their plain text ID fields and run unchanged; add a fresh ChatAgent node to get the pickers.
+
 Not yet covered: knowledge base (documents/products), AI agent configuration, deal activities/automation rules, and conversation media/search/delete — see [lat.md/nodes.md](lat.md/nodes.md) for the full breakdown of what's in and out of scope.
 
 ## Credentials
@@ -67,7 +75,9 @@ Errors surface as standard n8n HTTP errors (status code + response body); the mo
 | --- | --- | --- |
 | 401 | API Key missing or revoked | Issue a new key and update the credential. |
 | 403 on Company operations | Org's plan doesn't include the `company_management` feature | Upgrade the ChatAgent plan, or avoid the Company resource. |
-| 404 | Wrong ID (`contactId`, `pipelineId`, `dealId`, `conversationId`, …) or wrong Base URL for a self-hosted instance | Verify the ID and the credential's Base URL. |
+| 404 on a record that exists | The API key belongs to a different organization than the record — chatagent-api only finds records in the key's own org, and reports others as "not found" | Create the API key inside the workspace that owns the data (or switch the node to that org's credential), then re-pick any Pipeline/Stage/Tag/User dropdown values, which are stored per workflow and still hold the old org's IDs. |
+| 404 on every operation | Base URL points at the web app or has a path suffix (e.g. `/api`) | Set Base URL to the API root, e.g. `https://api.chatagent.so`. |
+| 404 on one item | Wrong or stale ID (`contactId`, `pipelineId`, `dealId`, `conversationId`, …), or the record was deleted | Verify the ID. Surrounding whitespace in mapped IDs is trimmed automatically. |
 | 429 | Rate limited | The node has no built-in retry/backoff — add an n8n `Wait` node + retry, or lower request concurrency in the workflow. |
 | Timeout | Slow response from chatagent-api | Requests time out after 30s by default (`requestDefaults.timeout`); check chatagent-api status if this recurs. |
 

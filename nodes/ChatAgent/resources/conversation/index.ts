@@ -45,7 +45,7 @@ export const conversationDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/conversations/{{$parameter.conversationId}}',
+						url: '=/conversations/{{encodeURIComponent(String($parameter.conversationId).trim())}}',
 					},
 					...unwrapData,
 				},
@@ -80,7 +80,7 @@ export const conversationDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/conversations/{{$parameter.conversationId}}/messages',
+						url: '=/conversations/{{encodeURIComponent(String($parameter.conversationId).trim())}}/messages',
 					},
 					output: {
 						postReceive: [
@@ -102,7 +102,7 @@ export const conversationDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '=/conversations/{{$parameter.conversationId}}/messages',
+						url: '=/conversations/{{encodeURIComponent(String($parameter.conversationId).trim())}}/messages',
 					},
 					output: {
 						postReceive: [
@@ -124,7 +124,7 @@ export const conversationDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'PATCH',
-						url: '=/conversations/{{$parameter.conversationId}}',
+						url: '=/conversations/{{encodeURIComponent(String($parameter.conversationId).trim())}}',
 					},
 					...unwrapData,
 				},
@@ -137,7 +137,7 @@ export const conversationDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'PATCH',
-						url: '=/conversations/{{$parameter.conversationId}}/assign',
+						url: '=/conversations/{{encodeURIComponent(String($parameter.conversationId).trim())}}/assign',
 					},
 					...unwrapData,
 				},
@@ -150,7 +150,7 @@ export const conversationDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '=/conversations/{{$parameter.conversationId}}/claim',
+						url: '=/conversations/{{encodeURIComponent(String($parameter.conversationId).trim())}}/claim',
 					},
 					...unwrapData,
 				},
@@ -163,7 +163,7 @@ export const conversationDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '=/conversations/{{$parameter.conversationId}}/read',
+						url: '=/conversations/{{encodeURIComponent(String($parameter.conversationId).trim())}}/read',
 					},
 					...unwrapData,
 				},
@@ -176,7 +176,7 @@ export const conversationDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '=/conversations/{{$parameter.conversationId}}/messages/{{$parameter.messageId}}/retry',
+						url: '=/conversations/{{encodeURIComponent(String($parameter.conversationId).trim())}}/messages/{{encodeURIComponent(String($parameter.messageId).trim())}}/retry',
 					},
 					// Same double-wrapped { data: { message: {...} } } as Send Message
 					output: {

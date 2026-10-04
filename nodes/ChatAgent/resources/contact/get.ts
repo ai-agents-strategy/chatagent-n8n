@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForContactGet = {
 	operation: ['get'],
@@ -6,14 +7,5 @@ const showOnlyForContactGet = {
 };
 
 export const contactGetDescription: INodeProperties[] = [
-	{
-		displayName: 'Contact ID',
-		name: 'contactId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForContactGet,
-		},
-	},
+	...idField('contactId', showOnlyForContactGet),
 ];

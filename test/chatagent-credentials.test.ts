@@ -11,7 +11,7 @@ describe('ChatAgentApi credentials', () => {
 
 	it('sends the key as an x-api-key header, not a query param or body field', () => {
 		expect(credentials.authenticate.properties.headers).toEqual({
-			'x-api-key': '={{$credentials.apiKey}}',
+			'x-api-key': '={{String($credentials.apiKey || "").trim()}}',
 		});
 	});
 
@@ -32,15 +32,32 @@ describe('ChatAgentApi credentials', () => {
 		// Exact expression string asserted (same pattern as pagination.test.ts);
 		// the mirror function below documents the intended semantics without eval.
 		expect(credentials.test.request.baseURL).toBe(
-			'={{ ($credentials.baseUrl || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
+			'={{ (String($credentials.baseUrl || "").trim() || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
 		);
+	});
+
+	it('trims whitespace pasted around the API key', () => {
+		// Mirror of the header expression above.
+		function headerValue(apiKey: string | undefined): string {
+			return String(apiKey || '').trim();
+		}
+		expect(headerValue('  ca_key_123\n')).toBe('ca_key_123');
+		expect(headerValue(undefined)).toBe('');
+	});
+
+	it('warns that the key only reaches records in its own organization', () => {
+		const notice = credentials.properties.find((p) => p.name === 'orgNotice');
+		expect(notice?.type).toBe('notice');
+		expect(notice?.displayName).toContain('404');
 	});
 
 	it('base URL normalization keeps the production default and strips trailing slashes', () => {
 		function normalize(baseUrl: string | undefined): string {
-			return (baseUrl || 'https://api.chatagent.so').replace(/\/+$/, '');
+			return (String(baseUrl || '').trim() || 'https://api.chatagent.so').replace(/\/+$/, '');
 		}
 		expect(normalize('')).toBe('https://api.chatagent.so');
+		expect(normalize('   ')).toBe('https://api.chatagent.so');
+		expect(normalize(' https://api.chatagent.so/ \n')).toBe('https://api.chatagent.so');
 		expect(normalize(undefined)).toBe('https://api.chatagent.so');
 		expect(normalize('https://api.chatagent.so/')).toBe('https://api.chatagent.so');
 		expect(normalize('https://staging.example.com///')).toBe('https://staging.example.com');

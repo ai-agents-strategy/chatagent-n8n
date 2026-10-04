@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { idField } from '../../shared/idLocator';
 
 const showOnlyForDealUpdate = {
 	operation: ['update'],
@@ -21,16 +22,7 @@ export const dealUpdateDescription: INodeProperties[] = [
 		description:
 			'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
-	{
-		displayName: 'Deal ID',
-		name: 'dealId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: showOnlyForDealUpdate,
-		},
-	},
+	...idField('dealId', showOnlyForDealUpdate),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',

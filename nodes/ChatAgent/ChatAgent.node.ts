@@ -1,6 +1,5 @@
 import {
 	NodeConnectionTypes,
-	type IAllExecuteFunctions,
 	type ILoadOptionsFunctions,
 	type INodePropertyOptions,
 	type INodeType,
@@ -11,6 +10,8 @@ import { companyDescription } from './resources/company';
 import { dealDescription } from './resources/deal';
 import { pipelineDescription } from './resources/pipeline';
 import { conversationDescription } from './resources/conversation';
+import { listSearch } from './listSearch';
+import { loadOptionsApiGet } from './shared/loadOptionsApi';
 
 type OrgMember = {
 	userId: string;
@@ -37,23 +38,16 @@ type TagOption = {
 	name: string;
 };
 
-/** GET a chatagent-api list endpoint with the node's credential applied. */
-async function loadOptionsApiGet(this: ILoadOptionsFunctions, path: string): Promise<unknown> {
-	const credentials = await this.getCredentials<{ baseUrl?: string }>('chatAgentApi');
-	const baseUrl = (credentials.baseUrl ?? '').replace(/\/+$/, '') || 'https://api.chatagent.so';
-	return this.helpers.httpRequestWithAuthentication.call(this as unknown as IAllExecuteFunctions, 'chatAgentApi', {
-		method: 'GET',
-		url: `${baseUrl}${path}`,
-	});
-}
-
 export class ChatAgent implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'ChatAgent',
 		name: 'chatAgent',
 		icon: { light: 'file:../../icons/favicon.svg', dark: 'file:../../icons/favicon.dark.svg' },
 		group: ['input'],
-		version: 1,
+		// v2 turns path-ID fields into resource locators (shared/idLocator.ts);
+		// v1 keeps plain string IDs so saved workflows still load.
+		version: [1, 2],
+		defaultVersion: 2,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description:
 			'Manage ChatAgent.so CRM contacts, companies, pipelines, and deals, and work the inbox: list and create records, move deals between stages, send or read conversation messages, and assign or claim conversations',
@@ -73,7 +67,7 @@ export class ChatAgent implements INodeType {
 		requestDefaults: {
 			// Empty or trailing-slash Base URLs would otherwise produce broken or
 			// double-slash request URLs, so default and strip before use.
-			baseURL: '={{ ($credentials.baseUrl || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
+			baseURL: '={{ (String($credentials.baseUrl || "").trim() || "https://api.chatagent.so").replace(/\\/+$/, "") }}',
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
@@ -120,7 +114,8 @@ export class ChatAgent implements INodeType {
 
 	// The node is otherwise fully declarative; this is its only hand-written
 	// code, used to fill dynamic options dropdowns (Assign's User ID, deal
-	// Pipeline/Stage, and Tag filters) from chatagent-api — see lat.md/nodes.md.
+	// Pipeline/Stage, and Tag filters) and the v2 resource locators' "From List"
+	// mode (listSearch.ts) from chatagent-api — see lat.md/nodes.md.
 	methods = {
 		loadOptions: {
 			// Authn goes through the credential's own `authenticate` config
@@ -178,5 +173,6 @@ export class ChatAgent implements INodeType {
 					.sort((a, b) => a.name.localeCompare(b.name));
 			},
 		},
+		listSearch,
 	};
 }
