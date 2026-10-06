@@ -39,6 +39,8 @@ Contact, Company, Address, Conversation, and Deal pickers (node version 2) are r
 
 Workflows saved before version 2 keep their plain text ID fields and run unchanged; add a fresh ChatAgent node to get the pickers.
 
+**ChatAgent Trigger** starts a workflow when a contact is **added**, **updated**, or **added or updated**. ChatAgent has no outbound webhooks yet, so the trigger polls `/contacts` on the node's Poll Times schedule (minimum 1 minute). The first poll after activation only records where to start, so existing contacts are not replayed. "Fetch Test Event" returns the most recent matching contact.
+
 Not yet covered: knowledge base (documents/products), AI agent configuration, deal activities/automation rules, and conversation media/search/delete — see [lat.md/nodes.md](lat.md/nodes.md) for the full breakdown of what's in and out of scope.
 
 ## Credentials
@@ -59,7 +61,7 @@ Every operation exposes an `action` and `description` used by n8n's AI Agent to 
 ## Examples
 
 **Sync new contacts to a Google Sheet**
-`Manual Trigger` → `ChatAgent: Contact / Get Many` (with a Filters → Search value) → `Google Sheets: Append`
+`ChatAgent Trigger` (Contact Added) → `Google Sheets: Append`
 
 **Move a deal to the next pipeline stage from an external event**
 `Webhook` → `ChatAgent: Pipeline / Get Stages` (look up the target `stageId`) → `ChatAgent: Deal / Move`

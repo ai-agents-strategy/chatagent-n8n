@@ -2,6 +2,8 @@
 
 n8n community nodes for ChatAgent.so. Each node follows n8n's declarative-routing pattern: a resource dropdown, an operation dropdown per resource, and per-field `routing` blocks that build the HTTP request — no custom `execute()` method.
 
+The one exception is the polling trigger node (see below), which has a hand-written `poll()`.
+
 ## ChatAgent node
 
 [[nodes/ChatAgent/ChatAgent.node.ts#ChatAgent]] wraps chatagent-api's authenticated REST endpoints as n8n actions, so workflows can sync ChatAgent CRM data with tools like Notion, Xero, and Google Sheets via their existing n8n nodes.
@@ -117,6 +119,22 @@ Both new nodes need a `Conversation ID`, but no exposed lookup goes customer →
 
 The tools.md roadmap's other two proposed tools — Relationship Memory and Create Follow-up — have no backing chatagent-api endpoint yet (no `follow-up` or `memory` concept exists in its modules as of this writing); building either here would call a route that doesn't exist. They stay unbuilt until chatagent-api adds the underlying feature.
 
+## ChatAgent Trigger node
+
+[[nodes/ChatAgentTrigger/ChatAgentTrigger.node.ts#ChatAgentTrigger]] is a polling trigger (`polling: true`, a hand-written `poll()`), offering Contact Added, Contact Updated, and Contact Added or Updated.
+
+It polls rather than registering a webhook because chatagent-api has no outbound webhooks — its only webhook module receives inbound channel events (WhatsApp, Instagram). No backend change was needed: `GET /contacts` already accepts `sortBy=createdAt|updatedAt` and `sortOrder=desc`, and every item carries both timestamps.
+
+The logic lives in [[nodes/ChatAgentTrigger/pollContacts.ts#pollContacts]], kept free of n8n types so it is unit-testable. Added sorts by `createdAt`; the two update events sort by `updatedAt`. It pages newest-first (100 per page) until it hits a record older than the watermark stored in `getWorkflowStaticData('node')`, and emits the unseen ones oldest-first. The watermark is a timestamp plus the IDs already emitted at exactly that millisecond, so records sharing the boundary are neither skipped nor duplicated.
+
+"Updated" means [[nodes/ChatAgentTrigger/pollContacts.ts#isUpdatedAfterCreate]]: chatagent-api inserts contacts with both timestamps from the same `defaultNow()` and every edit sets a fresh `updatedAt`, so `updatedAt > createdAt` separates edits from creations. Newly created contacts are still consumed by the watermark under Contact Updated, just not emitted.
+
+Every chatagent-api write to the `contacts` row sets `updatedAt` (checked as of 2026-10): field edits, tag replacement (same transaction as the update), custom-field changes, primary-deal changes, duplicate merges, identity/profile sync, AI agent CRM writes (including the debounced conversation field extraction, which writes through the same `AgentCrmActionsService`), inbound email/phone backfill, import undo, and unarchive. Two consequences: deleting a custom-field definition bumps every contact holding that key, so expect a burst of Updated events; and archiving fires nothing, since archived contacts drop out of the default list. Assignee and deal-activity values are derived from conversations/deals rather than stored on the contact, so changes to those do not fire Updated.
+
+The first poll after activation emits nothing and only stores the newest timestamp (or now, when the org has no contacts), so activating a workflow doesn't replay the whole CRM. Manual mode ("Fetch Test Event") returns the most recent matching contact without touching the watermark. Requests go through `httpRequestWithAuthentication` with the same Base URL normalization as [[nodes/ChatAgent/shared/loadOptionsApi.ts#loadOptionsApiGet]].
+
+The node opts out of the `node-usable-as-tool` lint rule: a trigger has no inputs and starts the workflow, so it can't be an AI Agent tool. Company, Deal, and Conversation events are not built yet.
+
 ## Testing
 
 The `test/` directory holds vitest coverage over the declarative node/credential config: structural checks (every operation has a usable `action`/`description`, valid `routing.request`) plus the places with real hand-written logic.
@@ -124,6 +142,8 @@ The `test/` directory holds vitest coverage over the declarative node/credential
 Those are the pagination continue/cursor expressions (page-based for Contact/Company, cursor-based for Deal/Conversation), the Assign-conversation empty-to-`null` value expression, the Base URL normalization expression (trim + default-empty-to-production + trailing-slash strip, shared by `requestDefaults.baseURL` and the credential test), and the path-ID trim/encode wrapper, which a structural test asserts on every routing URL that interpolates a `$parameter`. Since `routing` expression strings (`={{ ... }}`) are evaluated by n8n's own expression engine at runtime, not by this package, tests don't `eval`/`new Function` them — this repo's ESLint config (`@n8n/community-nodes/no-dangerous-functions`) forbids that anyway. Instead each test asserts the expression's exact source string (catches accidental edits) alongside a hand-written pure-JS function mirroring its intended semantics (catches logic regressions) — see [[test/pagination.test.ts]] for the pattern. [[test/resource-locator.test.ts]] covers the v2 fields: v1/v2 twin pairing, From List first, UUID validation, URL extraction against the real app links, and the `listSearch` request URLs/pagination via a mocked `ILoadOptionsFunctions`. The `methods.loadOptions` helpers are only asserted for wiring — every `loadOptionsMethod` used by a field must name a loader that actually exists, and the stage dropdowns must re-fetch on pipeline change — in [[test/load-options.test.ts]], since exercising their HTTP calls needs a live credential.
 
 [[test/chatagent-search-customer-node.test.ts]] covers the Search Customer node the same way as [[test/chatagent-node.test.ts]] covers the main node, plus asserting the hidden operation field's fixed `GET /contacts` routing and that only `query`/`limit` are non-hidden (i.e. exposed to the AI Agent tool schema). [[test/chatagent-conversation-history-node.test.ts]] and [[test/chatagent-send-message-node.test.ts]] follow the identical pattern for their own hidden-field routing and fillable-parameter set.
+
+[[test/chatagent-trigger-node.test.ts]] covers the trigger's description (polling, no inputs, the three events) and [[nodes/ChatAgentTrigger/pollContacts.ts#pollContacts]] against a fake paged API: first-poll baseline, watermark advance, boundary-millisecond dedup, Updated vs. Added-or-Updated filtering, and multi-page fetches. It also drives the node's `poll()` with a mocked `IPollFunctions` to pin the request shape (credential, normalized Base URL, query params), the activate-then-emit sequence through static data, and manual mode leaving the watermark untouched.
 
 ### Company address routing
 
